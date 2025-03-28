@@ -6,13 +6,16 @@ const AuthApp = () => {
   const [isSignup, setIsSignup] = useState(false);
   const [credentials, setCredentials] = useState({ name: "", email: "", password: "" });
   const [userName, setUserName] = useState("");
+  const [feature, setFeature] = useState("Welcome to your dashboard! Select an option above.");
 
   useEffect(() => {
     const authStatus = localStorage.getItem("auth") === "true";
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-    if (authStatus && storedUser) {
-      setIsAuthenticated(true);
-      setUserName(storedUser.name);
+    if (authStatus) {
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      if (storedUser) {
+        setIsAuthenticated(true);
+        setUserName(storedUser.name || "User");
+      }
     }
   }, []);
 
@@ -22,6 +25,10 @@ const AuthApp = () => {
 
   const handleAuth = () => {
     if (isSignup) {
+      if (!credentials.name || !credentials.email || !credentials.password) {
+        alert("Please fill in all fields");
+        return;
+      }
       localStorage.setItem("user", JSON.stringify(credentials));
       alert("Signup successful! Please log in.");
       setIsSignup(false);
@@ -30,7 +37,7 @@ const AuthApp = () => {
       if (storedUser && storedUser.email === credentials.email && storedUser.password === credentials.password) {
         localStorage.setItem("auth", "true");
         setIsAuthenticated(true);
-        setUserName(storedUser.name);
+        setUserName(storedUser.name || "User");
       } else {
         alert("Invalid credentials");
       }
@@ -48,7 +55,17 @@ const AuthApp = () => {
       {isAuthenticated ? (
         <div className="text-center">
           <h2>Welcome, {userName}!</h2>
-          <button className="btn btn-danger" onClick={handleLogout}>
+          <p className="text-muted">You are now logged in. Explore our features below.</p>
+          <div className="mt-4">
+            <button className="btn btn-success me-2" onClick={() => setFeature("This is your dashboard where you can see your activities.")}>Dashboard</button>
+            <button className="btn btn-info me-2" onClick={() => setFeature("This is your profile. Edit your details here.")}>Profile</button>
+            <button className="btn btn-warning" onClick={() => setFeature("Here are your settings. Adjust preferences as needed.")}>Settings</button>
+          </div>
+          <div className="mt-4 p-3 border rounded bg-light">
+            <h4>Feature Panel</h4>
+            <p>{feature}</p>
+          </div>
+          <button className="btn btn-danger mt-3" onClick={handleLogout}>
             Logout
           </button>
         </div>
